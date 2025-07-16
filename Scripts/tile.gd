@@ -1,5 +1,6 @@
 class_name Tile
 
+var rng = RandomNumberGenerator.new()
 var possible_tiles = [0,1,2,3,4]
 var collapsed = false
 var entropy = len(possible_tiles)
@@ -12,8 +13,7 @@ func collapse():
 
 func pick_random_possibility():
 	var pick = possible_tiles.pick_random()
-	#print("pos_tiles ", possible_tiles)
-	#print("pick " ,pick)
+	
 	collapsed = true
 	current_tile = pick
 	return pick

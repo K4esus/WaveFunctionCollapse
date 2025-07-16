@@ -1,6 +1,5 @@
 extends TileMapLayer
 
-var rng = RandomNumberGenerator.new()
 var screen_width = 72
 var screen_heigth = 41
 
@@ -9,22 +8,32 @@ var tiles = []
 var tile_rules = Tile_Rules.new()
 var smallest_entropy = []
 var tick = 0
+var already_placed = []
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	for x in screen_width:
 		var row = []
 		for y in screen_heigth:
 			var new_tile = Tile.new()
-			new_tile.position = Vector2(x,y)
+			new_tile.position = Vector2i(x,y)
+			var current_tile = get_cell_atlas_coords(new_tile.position)
+			if current_tile != Vector2i(-1,-1):
+				new_tile.current_tile = current_tile.y
+				new_tile.collapse()
+				already_placed.append(new_tile)
 			row.append(new_tile)
 		tiles.append(row)
+	for tile in already_placed:
+		collapse_surrounding_tiles(tile.position.x, tile.position.y)
+		set_tiles_counter += 1
 	find_lowest_entropy()
 
 
 func _physics_process(delta: float) -> void:
 	#return
 	if set_tiles_counter < (screen_heigth*screen_width):
-		print(smallest_entropy)
+		#print(smallest_entropy)
 		set_tile()
 		find_lowest_entropy()
 
@@ -43,10 +52,16 @@ func restart():
 	find_lowest_entropy()
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.is_pressed():
+		var clicked_cell = local_to_map(get_global_mouse_position())
+		var cell_type = get_cell_atlas_coords(clicked_cell)
+		print(cell_type)
+		
+		
 	return
 	if event is InputEventMouseButton and event.is_pressed():
 		if set_tiles_counter < (screen_heigth*screen_width):
-			print("Tick ", tick)
+			#print("Tick ", tick)
 			tick += 1
 			set_tile()
 			find_lowest_entropy()
