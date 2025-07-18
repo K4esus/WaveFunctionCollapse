@@ -1,11 +1,17 @@
 class_name Tile
 
 var rng = RandomNumberGenerator.new()
-var possible_tiles = [0,1,2,3,4]
+var possible_tiles = []
 var collapsed = false
-var entropy = len(possible_tiles)
+var entropy = -1
 var current_tile = -1
 var position: Vector2i
+var max_tile_num = -1
+
+func create(tiles):
+	possible_tiles = tiles
+	entropy = len(possible_tiles)
+	max_tile_num = len(possible_tiles)
 
 func collapse():
 	if current_tile != -1:
@@ -19,16 +25,9 @@ func pick_random_possibility():
 	return pick
 
 func merge_possibilitys(pos: Array):
-	#print("old ", possible_tiles)
-	#print("merge ", pos)
-	var dict := {
-		0:0,
-		1:0,
-		2:0,
-		3:0,
-		4:0,
-		5:0,
-	}
+	var dict := {}
+	for i in range(max_tile_num):
+		dict[i] = 0
 	for a in pos:
 		dict[a] += 1
 	for a in possible_tiles:
@@ -38,10 +37,5 @@ func merge_possibilitys(pos: Array):
 		if dict[key] > 1:
 			new_tiles.append(key)
 	possible_tiles = new_tiles
-	#print("new ", possible_tiles)
 	entropy = len(possible_tiles)
 	collapse()
-	#print(entropy)
-	
-	
-	

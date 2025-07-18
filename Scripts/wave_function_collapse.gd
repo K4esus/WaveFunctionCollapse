@@ -1,8 +1,10 @@
 extends TileMapLayer
 
+# the amout of tiles that fit into the screen
 var screen_width = 72
 var screen_heigth = 41
 
+# checks if all tiles are painted
 var set_tiles_counter = 0
 var tiles = []
 var tile_rules = Tile_Rules.new()
@@ -16,6 +18,7 @@ func _ready() -> void:
 		var row = []
 		for y in screen_heigth:
 			var new_tile = Tile.new()
+			new_tile.create(tile_rules.rules.keys())
 			new_tile.position = Vector2i(x,y)
 			var current_tile = get_cell_atlas_coords(new_tile.position)
 			if current_tile != Vector2i(-1,-1):
@@ -68,54 +71,16 @@ func _input(event: InputEvent) -> void:
 
 func set_tile():
 	var next_tile = smallest_entropy.pick_random()
-	#print("smallest entropy ",smallest_entropy)
-	#print("next tile ",next_tile)
-	#print("possible tiles ",tiles[next_tile.x][next_tile.y].possible_tiles)
 	var pick = tiles[next_tile.x][next_tile.y].pick_random_possibility()
 	if !pick and pick != 0:
-		#print(tiles[next_tile.x][next_tile.y].possible_tiles)
-		#print("pick is Nil")
 		set_cell(Vector2(next_tile.x,next_tile.y), 1, Vector2(0,0))
 		set_tiles_counter += 1
 		return
 	set_cell(Vector2(next_tile.x,next_tile.y), 2, Vector2(0,pick))
 	set_tiles_counter += 1
 	collapse_surrounding_tiles(next_tile.x,next_tile.y)
-	
 
-func collapse_surrounding_tiles(tile_x, tile_y):
-	var center_tile = tiles[tile_x][tile_y]
-	#print("current tile ", center_tile)
-	if tile_x > 0:
-		var left_tile = tiles[tile_x - 1][tile_y]
-		var left_possibilitys = tile_rules.rules[center_tile.current_tile]["left"]
-		#print("left ", left_possibilitys)
-		#print(left_tile.position)
-		left_tile.merge_possibilitys(left_possibilitys)
-		
-	
-	if tile_x < screen_width-1:
-		var right_tile = tiles[tile_x + 1][tile_y]
-		var right_possibilitys = tile_rules.rules[center_tile.current_tile]["right"]
-		#print("right ",right_possibilitys)
-		#print(right_tile.position)
-		right_tile.merge_possibilitys(right_possibilitys)
-	
-	if tile_y > 0:
-		var up_tile = tiles[tile_x][tile_y - 1]
-		var up_possibilitys = tile_rules.rules[center_tile.current_tile]["up"]
-		#print("up ", up_possibilitys)
-		#print(up_tile.position)
-		up_tile.merge_possibilitys(up_possibilitys)
-		
-	if tile_y < screen_heigth-1:
-		var down_tile = tiles[tile_x][tile_y + 1]
-		var down_possibilitys = tile_rules.rules[center_tile.current_tile]["down"]
-		#print("down",down_possibilitys)
-		#print(down_tile.position)
-		down_tile.merge_possibilitys(down_possibilitys)
-		
-		
+
 func find_lowest_entropy():
 	var dict := {
 		0:[],
@@ -124,6 +89,7 @@ func find_lowest_entropy():
 		3:[],
 		4:[],
 		5:[],
+		6:[],
 	}
 	
 	for x in screen_width:
@@ -138,3 +104,47 @@ func find_lowest_entropy():
 			break
 	smallest_entropy = small
 	#print(smallest_entropy)
+
+
+func collapse_surrounding_tiles(tile_x, tile_y):
+	var center_tile = tiles[tile_x][tile_y].current_tile
+	var center_tile_rule = tile_rules.rules[center_tile]
+	
+	const up = 0
+	const right = 1
+	const down = 2
+	const left = 3
+	
+	var left_pos = []
+	if tile_x > 0:
+		var left_tile = tiles[tile_x - 1][tile_y]
+		for pos_tile in tile_rules.rules.keys():
+			if center_tile_rule[left] == tile_rules.rules[pos_tile][right]:
+				left_pos.append(pos_tile)
+		left_tile.merge_possibilitys(left_pos)
+		
+	
+	var right_pos = []
+	if tile_x < screen_width-1:
+		var right_tile = tiles[tile_x + 1][tile_y]
+		for pos_tile in tile_rules.rules.keys():
+			if center_tile_rule[right] == tile_rules.rules[pos_tile][left]:
+				right_pos.append(pos_tile)
+		right_tile.merge_possibilitys(right_pos)
+		
+	var up_pos = []
+	if tile_y > 0:
+		var up_tile = tiles[tile_x][tile_y - 1]
+		for pos_tile in tile_rules.rules.keys():
+			if center_tile_rule[up] == tile_rules.rules[pos_tile][down]:
+				up_pos.append(pos_tile)
+		up_tile.merge_possibilitys(up_pos)
+	
+	
+	var down_pos = []
+	if tile_y < screen_heigth-1:
+		var down_tile = tiles[tile_x][tile_y + 1]
+		for pos_tile in tile_rules.rules.keys():
+			if center_tile_rule[down] == tile_rules.rules[pos_tile][up]:
+				down_pos.append(pos_tile)
+		down_tile.merge_possibilitys(down_pos)
