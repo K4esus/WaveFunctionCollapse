@@ -10,7 +10,7 @@ var max_tile_num = -1
 
 func create(tiles):
 	possible_tiles = tiles
-	entropy = len(possible_tiles)
+	entropy = len(possible_tiles)-1
 	max_tile_num = len(possible_tiles)
 
 func collapse():

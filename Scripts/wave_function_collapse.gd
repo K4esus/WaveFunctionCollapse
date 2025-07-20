@@ -1,8 +1,8 @@
 extends TileMapLayer
 
 # the amout of tiles that fit into the screen
-var screen_width = 72
-var screen_heigth = 41
+var screen_width = 20
+var screen_heigth = 12
 
 # checks if all tiles are painted
 var set_tiles_counter = 0
@@ -82,15 +82,9 @@ func set_tile():
 
 
 func find_lowest_entropy():
-	var dict := {
-		0:[],
-		1:[],
-		2:[],
-		3:[],
-		4:[],
-		5:[],
-		6:[],
-	}
+	var dict := {}
+	for i in tile_rules.rules.keys():
+		dict[i] = []
 	
 	for x in screen_width:
 		for y in screen_heigth:
