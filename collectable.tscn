@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://ckoqwn47x2scp"]
+
+[ext_resource type="Script" uid="uid://cnan3vjim7f5w" path="res://collectable.gd" id="1_un20x"]
+[ext_resource type="Texture2D" uid="uid://gr1egkv3vv4b" path="res://icon.svg" id="2_4v1pg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_te2od"]
+size = Vector2(123, 121)
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Area2D" type="Area2D" parent="."]
+script = ExtResource("1_un20x")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_te2od")
+
+[node name="Sprite2D" type="Sprite2D" parent="Area2D"]
+modulate = Color(1, 0.491887, 0.620192, 1)
+texture = ExtResource("2_4v1pg")
+
+[connection signal="area_entered" from="Area2D" to="Area2D" method="_on_area_entered"]
+[connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

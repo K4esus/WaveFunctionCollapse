@@ -31,10 +31,13 @@ func _ready() -> void:
 		collapse_surrounding_tiles(tile.position.x, tile.position.y)
 		set_tiles_counter += 1
 	find_lowest_entropy()
+	while set_tiles_counter < (screen_heigth*screen_width):
+		set_tile()
+		find_lowest_entropy()
 
 
 func _physics_process(delta: float) -> void:
-	#return
+	return
 	if set_tiles_counter < (screen_heigth*screen_width):
 		#print(smallest_entropy)
 		set_tile()
@@ -56,24 +59,19 @@ func restart():
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.is_pressed():
-		var clicked_cell = local_to_map(get_global_mouse_position())
+		var local_mouse_pos = to_local(get_global_mouse_position())
+		var clicked_cell = local_to_map(local_mouse_pos)
 		var cell_type = get_cell_atlas_coords(clicked_cell)
+		print(clicked_cell)
 		print(cell_type)
-		
-		
 	return
-	if event is InputEventMouseButton and event.is_pressed():
-		if set_tiles_counter < (screen_heigth*screen_width):
-			#print("Tick ", tick)
-			tick += 1
-			set_tile()
-			find_lowest_entropy()
+	
 
 func set_tile():
 	var next_tile = smallest_entropy.pick_random()
 	var pick = tiles[next_tile.x][next_tile.y].pick_random_possibility()
 	if !pick and pick != 0:
-		set_cell(Vector2(next_tile.x,next_tile.y), 1, Vector2(0,0))
+		set_cell(Vector2(next_tile.x,next_tile.y), 2, Vector2(-1,-1))
 		set_tiles_counter += 1
 		return
 	set_cell(Vector2(next_tile.x,next_tile.y), 2, Vector2(0,pick))
